@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<robot name="prototype_1" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="four_wheeled_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!-- ============ CHASSIS ============ -->
   <link name="base_link">
@@ -136,25 +136,25 @@
   <gazebo reference="front_left_wheel">
     <material>Gazebo/Black</material>
     <mu1>1.0</mu1>
-    <mu2>0.3</mu2>
+    <mu2>0.5</mu2>
     <fdir1>1 0 0</fdir1>
   </gazebo>
   <gazebo reference="front_right_wheel">
     <material>Gazebo/Black</material>
     <mu1>1.0</mu1>
-    <mu2>0.3</mu2>
+    <mu2>0.5</mu2>
     <fdir1>1 0 0</fdir1>
   </gazebo>
   <gazebo reference="rear_left_wheel">
     <material>Gazebo/Black</material>
     <mu1>1.0</mu1>
-    <mu2>0.3</mu2>
+    <mu2>0.5</mu2>
     <fdir1>1 0 0</fdir1>
   </gazebo>
   <gazebo reference="rear_right_wheel">
     <material>Gazebo/Black</material>
     <mu1>1.0</mu1>
-    <mu2>0.3</mu2>
+    <mu2>0.5</mu2>
     <fdir1>1 0 0</fdir1>
   </gazebo>
 
@@ -196,7 +196,9 @@
     <parent link="arm_base_link"/>
     <child link="shoulder_link"/>
     <origin xyz="0 0 0.05" rpy="0 0 0"/>
-    <axis xyz="0 0 1"/> </joint>
+    <axis xyz="0 0 1"/>
+    <limit effort="15.0" velocity="2.0"/>
+  </joint>
 
   <link name="upper_arm_link">
     <visual>
@@ -218,7 +220,7 @@
     <child link="upper_arm_link"/>
     <origin xyz="0 0 0.02" rpy="0 0 0"/>
     <axis xyz="0 1 0"/> 
-    <limit lower="-1.5708" upper="1.5708" effort="200.0" velocity="10.0"/>
+    <limit lower="-1.5708" upper="1.5708" effort="15.0" velocity="10.0"/>
     <dynamics damping="0.1" friction="0.02"/>
   </joint>
 
@@ -242,7 +244,7 @@
     <child link="forearm_link"/>
     <origin xyz="0 0 0.2" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-2.0" upper="2.0" effort="200.0" velocity="10.0"/>
+    <limit lower="-2.0" upper="2.0" effort="15.0" velocity="10.0"/>
     <dynamics damping="0.1" friction="0.02"/>
   </joint>
 
@@ -266,45 +268,77 @@
     <child link="wrist_link"/>
     <origin xyz="0 0 0.16" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-2.0" upper="2.0" effort="200.0" velocity="10.0"/>
+    <limit lower="-2.0" upper="2.0" effort="15.0" velocity="10.0"/>
     <dynamics damping="0.1" friction="0.02"/>
   </joint>
 
   <link name="gripper_left_link">
     <visual>
-      <origin xyz="0 0.015 0.02" rpy="0 0 0"/>
+      <origin xyz="0 0.025 0.02" rpy="0 0 0"/>
       <geometry><box size="0.01 0.01 0.04"/></geometry>
       <material name="grey"/>
     </visual>
+    <collision>
+      <origin xyz="0 0.025 0.02" rpy="0 0 0"/>
+      <geometry><box size="0.01 0.01 0.04"/></geometry>
+    </collision>
     <inertial>
       <mass value="0.02"/>
       <inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001"/>
     </inertial>
   </link>
-  <joint name="gripper_left_joint" type="continuous">
+  <joint name="gripper_left_joint" type="prismatic">
     <parent link="wrist_link"/>
     <child link="gripper_left_link"/>
     <origin xyz="0 0 0.04" rpy="0 0 0"/>
-    <axis xyz="1 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.02" upper="0.0" effort="5.0" velocity="0.5"/>
+    <dynamics damping="0.05" friction="0.01"/>
   </joint>
 
   <link name="gripper_right_link">
     <visual>
-      <origin xyz="0 -0.015 0.02" rpy="0 0 0"/>
+      <origin xyz="0 -0.025 0.02" rpy="0 0 0"/>
       <geometry><box size="0.01 0.01 0.04"/></geometry>
       <material name="grey"/>
     </visual>
+    <collision>
+      <origin xyz="0 -0.025 0.02" rpy="0 0 0"/>
+      <geometry><box size="0.01 0.01 0.04"/></geometry>
+    </collision>
     <inertial>
       <mass value="0.02"/>
       <inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001"/>
     </inertial>
   </link>
-  <joint name="gripper_right_joint" type="continuous">
+  <joint name="gripper_right_joint" type="prismatic">
     <parent link="wrist_link"/>
     <child link="gripper_right_link"/>
     <origin xyz="0 0 0.04" rpy="0 0 0"/>
-    <axis xyz="1 0 0"/>
+    <axis xyz="0 -1 0"/>
+    <limit lower="-0.02" upper="0.0" effort="5.0" velocity="0.5"/>
+    <dynamics damping="0.05" friction="0.01"/>
   </joint>
+
+  <gazebo reference="gripper_left_link">
+    <material>Gazebo/Grey</material>
+    <mu1>10.0</mu1>
+    <mu2>10.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>1.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.0</maxVel>
+  </gazebo>
+
+  <gazebo reference="gripper_right_link">
+    <material>Gazebo/Grey</material>
+    <mu1>10.0</mu1>
+    <mu2>10.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>1.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.0</maxVel>
+  </gazebo>
 
 
   <gazebo reference="base_link"><material>Gazebo/Blue</material></gazebo>
@@ -346,7 +380,7 @@
       <wheel_diameter>0.1</wheel_diameter>
 
       <max_wheel_torque>20</max_wheel_torque>
-      <max_wheel_acceleration>1.0</max_wheel_acceleration>
+      <max_wheel_acceleration>5.0</max_wheel_acceleration>
 
       <command_topic>cmd_vel</command_topic>
       <publish_odom>true</publish_odom>
@@ -399,13 +433,38 @@
       <state_interface name="position"/>
       <state_interface name="velocity"/>
     </joint>
+
+    <joint name="gripper_left_joint">
+      <command_interface name="position">
+        <param name="min">-0.02</param>
+        <param name="max">0.0</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="gripper_right_joint">
+      <command_interface name="position">
+        <param name="min">-0.02</param>
+        <param name="max">0.0</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
   </ros2_control>
 
 
   <gazebo>
     <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
-      <parameters>$(find prototype_1)/config/controllers.yaml</parameters>
+      <parameters>$(find four_wheeled_robot_1)/config/controllers.yaml</parameters>
     </plugin>
+  </gazebo>
+
+  <gazebo reference="gripper_left_link">
+    <material>Gazebo/Grey</material>
+    <mu1>5.0</mu1><mu2>5.0</mu2>
+    <kp>1000000.0</kp><kd>1.0</kd>
+    <minDepth>0.001</minDepth><maxVel>0.1</maxVel>
   </gazebo>
 
 </robot>
